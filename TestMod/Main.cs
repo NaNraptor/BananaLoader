@@ -1,12 +1,9 @@
 ﻿using BananaLoader;
 using System;
 using System.Reflection;
-using UnityEngine;
 using HarmonyLib;
-using System.IO;
 using System.Threading;
-using Photon.Pun;
-using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace TestMod
 {
