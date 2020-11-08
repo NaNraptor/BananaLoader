@@ -46,7 +46,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 			originaldll = LoadLibrary((std::string(path) + "\\version.dll").c_str());
 		else
 		{
-			MessageBox(NULL, "Failed to Get System32 Directory!", "MelonLoader", MB_ICONERROR | MB_OK);
+			MessageBox(NULL, "Failed to Get System32 Directory!", "BananaLoader", MB_ICONERROR | MB_OK);
 			return FALSE;
 		}
 	}
@@ -71,14 +71,14 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		VerQueryValueW_Original = GetProcAddress(originaldll, "VerQueryValueW");
 		if (strstr(GetCommandLine(), "--no-mods") == NULL)
 		{
-			HINSTANCE melonloaderdll = LoadLibrary("MelonLoader\\MelonLoader.dll");
-			if (melonloaderdll == NULL)
-				MessageBox(NULL, "Failed to Load MelonLoader.dll!", "MelonLoader", MB_ICONERROR | MB_OK);
+			HINSTANCE Bananaloaderdll = LoadLibrary("BananaLoader\\BananaLoader.dll");
+			if (Bananaloaderdll == NULL)
+				MessageBox(NULL, "Failed to Load BananaLoader.dll!", "BananaLoader", MB_ICONERROR | MB_OK);
 		}
 		return TRUE;
 	}
 	else
-		MessageBox(NULL, "Failed to Load version.dll!", "MelonLoader", MB_ICONERROR | MB_OK);
+		MessageBox(NULL, "Failed to Load version.dll!", "BananaLoader", MB_ICONERROR | MB_OK);
 	return FALSE;
 }
 

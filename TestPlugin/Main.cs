@@ -1,4 +1,4 @@
-﻿using MelonLoader;
+﻿using BananaLoader;
 
 namespace TestPlugin
 {
@@ -12,26 +12,26 @@ namespace TestPlugin
         public const string DownloadLink = null; // Download Link for the Plugin.  (Set as null if none)
     }
 
-    public class TestPlugin : MelonPlugin
+    public class TestPlugin : BananaPlugin
     {
         public override void OnPreInitialization() // Runs before Game Initialization.
         {
-            MelonLogger.Log("OnPreInitialization");
+            BananaLogger.Log("OnPreInitialization");
         }
 
         public override void OnApplicationStart() // Runs after Game Initialization.
         {
-            MelonLogger.Log("OnApplicationStart");
+            BananaLogger.Log("OnApplicationStart");
         }
 
         public override void OnApplicationQuit() // Runs when the Game is told to Close.
         {
-            MelonLogger.Log("OnApplicationQuit");
+            BananaLogger.Log("OnApplicationQuit");
         }
 
         public override void OnModSettingsApplied() // Runs when Mod Preferences get saved to UserData/modprefs.ini.
         {
-            MelonLogger.Log("OnModSettingsApplied");
+            BananaLogger.Log("OnModSettingsApplied");
         }
     }
 }

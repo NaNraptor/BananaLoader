@@ -1,4 +1,12 @@
-﻿using MelonLoader;
+﻿using BananaLoader;
+using System;
+using System.Reflection;
+using UnityEngine;
+using HarmonyLib;
+using System.IO;
+using System.Threading;
+using Photon.Pun;
+using System.Runtime.CompilerServices;
 
 namespace TestMod
 {
@@ -12,61 +20,170 @@ namespace TestMod
         public const string DownloadLink = null; // Download Link for the Mod.  (Set as null if none)
     }
 
-    public class TestMod : MelonMod
+    public class TestMod : BananaMod
     {
+        public bool doOnce1 = false;
+        public GameObject privateCopy;
         public override void OnApplicationStart() // Runs after Game Initialization.
         {
-            MelonLogger.Log("OnApplicationStart");
+            BananaLogger.Log("OnApplicationStart");
+            //testPatch.DoPatching();
+            //myPatch.DoPatching(typeof(Door), "SpawnHandPrintEvidence", new Type[] { });
+            //myPatch.DoPatching(typeof(Door), "NetworkedPlayClosedSound", new Type[] { });
+            //myPatch.DoPatching(typeof(Door), "NetworkedPlayLockSound", new Type[] { });
+            //myPatch.DoPatching(typeof(Door), "NetworkedPlayUnlockSound", new Type[] { });
+            //myPatch.DoPatching(typeof(Door), "Update", new Type[] { });
+
+            new Thread((ThreadStart)(() =>
+            {
+                while (true)
+                {
+                    Thread.Sleep(30000);
+                    var doors = UnityEngine.Object.FindObjectsOfType<Door>();
+                    if (SetupPhaseController.field_Public_Static_SetupPhaseController_0 != null)
+                    {
+                        Console.WriteLine(SetupPhaseController.field_Public_Static_SetupPhaseController_0.field_Public_Boolean_0 + " " +
+                                SetupPhaseController.field_Public_Static_SetupPhaseController_0.field_Public_Boolean_1 + " " +
+                                SetupPhaseController.field_Public_Static_SetupPhaseController_0.field_Public_Boolean_2);
+                    }
+                    else continue;
+                    if (doors.Length == 0 || doOnce1) continue;
+                    doOnce1 = true;
+
+                    foreach (var door in doors)
+                    {
+                        if (door.field_Public_Boolean_0 == true)
+                        {
+                            door.UnlockDoor();
+                        }
+                        door.SpawnHandPrintEvidence();
+                        //GameObject.Destroy(door.GetComponent<BoxCollider>());
+                        //GameObject.Destroy(door.GetComponent<Rigidbody>());
+                        //GameObject.Destroy(door.GetComponent<Renderer>());
+                        //PhotonNetwork.Destroy((GameObject)door);
+                    }
+                }
+            })).Start();
+
+            new Thread((ThreadStart)(() =>
+            {
+                while (true)
+                {
+                    GameObject ho = GameObject.Find("NaNraptor");
+                    if (ho)
+                    {
+                        privateCopy = GameObject.Instantiate(ho);
+                        Console.WriteLine("ho ho ho");
+                    }
+                    else if (ho == null)
+                    {
+                        Console.WriteLine("no no no");
+                    }
+                    Thread.Sleep(5000);
+                }
+            })).Start();
         }
 
         public override void OnLevelIsLoading() // Runs when a Scene is Loading or when a Loading Screen is Shown. Currently only runs if the Mod is used in BONEWORKS.
         {
-            MelonLogger.Log("OnLevelIsLoading");
+            BananaLogger.Log("OnLevelIsLoading");
         }
 
         public override void OnLevelWasLoaded(int level) // Runs when a Scene has Loaded.
         {
-            MelonLogger.Log("OnLevelWasLoaded: " + level.ToString());
+            BananaLogger.Log("OnLevelWasLoaded: " + level.ToString());
         }
 
         public override void OnLevelWasInitialized(int level) // Runs when a Scene has Initialized.
         {
-            MelonLogger.Log("OnLevelWasInitialized: " + level.ToString());
+            BananaLogger.Log("OnLevelWasInitialized: " + level.ToString());
         }
 
         public override void OnUpdate() // Runs once per frame.
         {
-            MelonLogger.Log("OnUpdate");
+            //BananaLogger.Log("OnUpdate");
         }
 
         public override void OnFixedUpdate() // Can run multiple times per frame. Mostly used for Physics.
         {
-            MelonLogger.Log("OnFixedUpdate");
+            //BananaLogger.Log("OnFixedUpdate");
         }
 
         public override void OnLateUpdate() // Runs once per frame after OnUpdate and OnFixedUpdate have finished.
         {
-            MelonLogger.Log("OnLateUpdate");
+            //BananaLogger.Log("OnLateUpdate");
         }
-
+        public int a = 0;
         public override void OnGUI() // Can run multiple times per frame. Mostly used for Unity's IMGUI.
         {
-            MelonLogger.Log("OnGUI");
+            //BananaLogger.Log("OnGUI");
+            GUI.color = Color.white;
+            
+            GUI.Label(new Rect(100f, 100f, 100f, 75f), "TEST MOD LOADED" + (++a).ToString());
         }
 
         public override void OnApplicationQuit() // Runs when the Game is told to Close.
         {
-            MelonLogger.Log("OnApplicationQuit");
+            BananaLogger.Log("OnApplicationQuit");
         }
 
         public override void OnModSettingsApplied() // Runs when Mod Preferences get saved to UserData/modprefs.ini.
         {
-            MelonLogger.Log("OnModSettingsApplied");
+            BananaLogger.Log("OnModSettingsApplied");
+        }
+    }
+
+    public class testPatch
+    {
+        public static void DoPatching()
+        {
+            HarmonyLib.Harmony harmony = new HarmonyLib.Harmony("testPatch");
+
+            Type T = typeof(UnityEngine.Object);
+            string mName = "DestroyObject";
+            Type[] args = { typeof(UnityEngine.Object), typeof(float) };
+
+            MethodInfo mOriginal = T.GetMethod(mName, args );
+
+            var mPrefix = typeof(testPatch).GetMethod("MyPrefix", BindingFlags.Static | BindingFlags.Public);
+            var mPostfix = typeof(testPatch).GetMethod("MyPostfix", BindingFlags.Static | BindingFlags.Public);
+            if (mOriginal == null)
+            {
+                BananaLogger.LogError("harmony patch didnt work - the function '" + mName + "()' that was to be patched is null...");
+                return;
+            }
+            if (mPrefix == null)
+            {
+                BananaLogger.LogError("harmony patch didnt work - prefix function is null...");
+                return;
+            }
+            if (mPostfix == null)
+            {
+                BananaLogger.LogError("harmony patch didnt work - postfix function is null...");
+                return;
+            }
+
+            harmony.Patch(mOriginal, new HarmonyMethod(mPrefix), new HarmonyMethod(mPostfix));
+            BananaLogger.Log("Patched " + T.Name + "." + mName + "(number of args: " + args.Length + ")");
         }
 
-        public override void VRChat_OnUiManagerInit() // Runs upon VRChat's UiManager Initialization. Only runs if the Mod is used in VRChat.
+        public static void MyPrefix(UnityEngine.Object obj, float t)
         {
-            MelonLogger.Log("VRChat_OnUiManagerInit");
+            System.Console.WriteLine("obj " + obj.name + " destroyed " + t);
+            //BananaLogger.Log(obj.name + " destroyed");
+
+            //GameObject ho = GameObject.Find("NaNraptor");
+            //if (!ho)
+            //{
+            //    Console.WriteLine("couldnt find hack obj");
+            //    return;
+            //}
+
+            //ho.SetActive(true);
+        }
+
+        public static void MyPostfix()
+        {
         }
     }
 }
