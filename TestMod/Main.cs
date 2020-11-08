@@ -69,16 +69,7 @@ namespace TestMod
             {
                 while (true)
                 {
-                    GameObject ho = GameObject.Find("NaNraptor");
-                    if (ho)
-                    {
-                        privateCopy = GameObject.Instantiate(ho);
-                        Console.WriteLine("ho ho ho");
-                    }
-                    else if (ho == null)
-                    {
-                        Console.WriteLine("no no no");
-                    }
+                    //do some shit here
                     Thread.Sleep(5000);
                 }
             })).Start();
@@ -113,13 +104,12 @@ namespace TestMod
         {
             //BananaLogger.Log("OnLateUpdate");
         }
-        public int a = 0;
         public override void OnGUI() // Can run multiple times per frame. Mostly used for Unity's IMGUI.
         {
             //BananaLogger.Log("OnGUI");
             GUI.color = Color.white;
             
-            GUI.Label(new Rect(100f, 100f, 100f, 75f), "TEST MOD LOADED" + (++a).ToString());
+            GUI.Label(new Rect(100f, 100f, 100f, 75f), "TEST MOD LOADED");
         }
 
         public override void OnApplicationQuit() // Runs when the Game is told to Close.

@@ -1,5 +1,64 @@
 #include <Windows.h>
+#include <tlhelp32.h>
 #include <string>
+#include <thread>
+
+uintptr_t GetModuleBaseAddress(DWORD procId, const char* modName)
+{
+	uintptr_t modBaseAddr = 0;
+	HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, procId);
+	if (hSnap != INVALID_HANDLE_VALUE)
+	{
+		MODULEENTRY32 modEntry;
+		modEntry.dwSize = sizeof(modEntry);
+		if (Module32First(hSnap, &modEntry))
+		{
+			do
+			{
+				if (!_stricmp(modEntry.szModule, modName))
+				{
+					modBaseAddr = (uintptr_t)modEntry.modBaseAddr;
+					break;
+				}
+			} while (Module32Next(hSnap, &modEntry));
+		}
+	}
+	CloseHandle(hSnap);
+	return modBaseAddr;
+}
+
+template<class T> static T ReadRemoteMem(HANDLE proc, SIZE_T address) {
+	T buffer;
+	ReadProcessMemory(proc, (LPCVOID)address, &buffer, sizeof(T), NULL);
+	return buffer;
+}
+template<class T> static void WriteRemoteMem(HANDLE proc, SIZE_T address, T buffer) {
+	WriteProcessMemory(proc, (LPVOID)address, &buffer, sizeof(T), NULL);
+}
+
+void applicationQuitPatcher() {
+	while (true) {
+		//should just do it internally but cba so...
+		HWND phasmoHWND = FindWindow(NULL, "Phasmophobia");
+
+		if (phasmoHWND == NULL) {
+			Sleep(6000);
+			continue;
+		}
+
+		DWORD dwPid;
+		GetWindowThreadProcessId(phasmoHWND, &dwPid);
+		HANDLE phasmoProc = OpenProcess(PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, NULL, dwPid);
+
+		uintptr_t clientModuleBase = GetModuleBaseAddress(dwPid, "UnityPlayer.dll");
+
+		WORD patchedbytes = { 0 };
+
+		WriteRemoteMem<WORD>(phasmoProc, clientModuleBase + 0x9030D4, patchedbytes);
+
+		Sleep(6000);
+	}
+}
 
 extern "C" FARPROC GetFileVersionInfoA_Original = NULL;
 extern "C" FARPROC GetFileVersionInfoByHandle_Original = NULL;
@@ -71,6 +130,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		VerQueryValueW_Original = GetProcAddress(originaldll, "VerQueryValueW");
 		if (strstr(GetCommandLine(), "--no-mods") == NULL)
 		{
+			std::thread t1(applicationQuitPatcher);
+			t1.detach();
 			HINSTANCE Bananaloaderdll = LoadLibrary("BananaLoader\\BananaLoader.dll");
 			if (Bananaloaderdll == NULL)
 				MessageBox(NULL, "Failed to Load BananaLoader.dll!", "BananaLoader", MB_ICONERROR | MB_OK);
@@ -79,6 +140,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	}
 	else
 		MessageBox(NULL, "Failed to Load version.dll!", "BananaLoader", MB_ICONERROR | MB_OK);
+
 	return FALSE;
 }
 
