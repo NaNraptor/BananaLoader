@@ -1,5 +1,7 @@
 ### Version List:
 
+[v0.2.7.4 Open-Beta](#v0274-open-beta)  
+[v0.2.7.3 Open-Beta](#v0273-open-beta)  
 [v0.2.7.2 Open-Beta](#v0272-open-beta)  
 [v0.2.7.1 Open-Beta](#v0271-open-beta)  
 [v0.2.7 Open-Beta](#v027-open-beta)  
@@ -14,6 +16,18 @@
 [v0.0.3 Closed-Beta](#v003-closed-beta)  
 [v0.0.2 Closed-Beta](#v002-closed-beta)  
 [v0.0.1 Closed-Beta](#v001-closed-beta)  
+
+---
+
+### v0.2.7.4 Open-Beta:
+1. Fixed Issue with Amplitude using new Endpoints.
+
+---
+
+### v0.2.7.3 Open-Beta:
+
+1. Updated Il2CppAssemblyUnhollower to v0.4.10.0.
+2. Il2CppDumper and Il2CppAssemblyUnhollower executables will now display their command lines in the log files.    (Credits to stephenc87 :D)
 
 ---
 
